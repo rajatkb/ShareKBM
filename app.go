@@ -40,9 +40,11 @@ func main() {
 	if *agent == string(network.SERVERA) {
 		agnt := network.CreateServerManager(logger)
 		net.CreateServer(agnt)
+
 	} else if *agent == string(network.CLIENTA) {
 		agnt := network.CreateClientManager(logger)
 		net.CreateClient(agnt)
+
 	} else {
 		logger.Fatal(fmt.Sprintf("Unknown agent m should be a ' %s ' or ' %s ' ", network.CLIENTA, network.SERVERA))
 	}

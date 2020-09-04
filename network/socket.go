@@ -58,7 +58,7 @@ func wsEndPoint(logger *loglib.Logger, serverm *ServerManager) func(w http.Respo
 			logger.Fatal(fmt.Sprintf("Failed to start web socket error: %s", err.Error()))
 		}
 
-		serverm.ConnectionHandler(conn) // non blocking call to handle a connection
+		serverm.handleConnection(conn) // non blocking call to handle a connection
 		return
 	}
 
