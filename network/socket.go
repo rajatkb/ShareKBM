@@ -58,7 +58,7 @@ func wsEndPoint(logger *loglib.Logger, serverm *ServerManager) func(w http.Respo
 			logger.Fatal(fmt.Sprintf("Failed to start web socket error: %s", err.Error()))
 		}
 
-		serverm.handleConnection(conn) // non blocking call to handle a connection
+		go serverm.handleConnection(conn) // non blocking call to handle a connection
 		return
 	}
 
@@ -101,9 +101,11 @@ func (network *Network) CreateServer(serverm *ServerManager) {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
+
 }
 
 // CreateClient ... Provides a wss client for sending message to the server
+// Responsible for creating a client and blocking on it.
 func (network *Network) CreateClient(client *ClientManager) {
 	logger := network.Logger
 	logger.Info(fmt.Sprintf("Client starting in port :%d", *network.Port))
@@ -113,13 +115,15 @@ func (network *Network) CreateClient(client *ClientManager) {
 		addr := fmt.Sprintf("%s:%d", *network.Host, *network.Port)
 		url := url.URL{Scheme: "ws", Host: addr, Path: "/wss"}
 		conn, _, err := websocket.DefaultDialer.Dial(url.String(), nil)
-		logger.Info("Client established a connection !!")
+
 		if err != nil {
 			logger.Error(fmt.Sprintf("Failed when creating connection error : %s ", err.Error()))
-			return
+			continue
+		} else {
+			logger.Info("Client established a connection !!")
 		}
 		// reader domain
-		err2 := client.ConnectionHandler(conn) // blocking call to handle a connection
+		err2 := client.handleConnection(conn) // blocking call to handle a connection
 		if err2 != nil {
 			logger.Error("Disconnected from Server, retrying connection")
 		}

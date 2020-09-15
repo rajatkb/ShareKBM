@@ -60,12 +60,12 @@ func (l *Logger) Close() {
 }
 
 func (l *Logger) readlogs() {
-	go func() {
-		for lm := range l.logchannel {
-			l.printlogs(lm.logt, lm.message)
-			l.waitOnChannelEmpty.Done()
-		}
-	}()
+
+	for lm := range l.logchannel {
+		l.printlogs(lm.logt, lm.message)
+		l.waitOnChannelEmpty.Done()
+	}
+
 }
 
 //Fatal ... logs fatal and shuts down app
@@ -111,6 +111,6 @@ func GetLogger(bufferSize int) *Logger {
 	log.SetOutput(os.Stdout)
 	lgr := new(Logger)
 	lgr.logchannel = make(chan LogMessage, bufferSize)
-	lgr.readlogs() // start go channel for reader
+	go lgr.readlogs() // start go channel for reader
 	return lgr
 }
