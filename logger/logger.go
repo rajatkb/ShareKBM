@@ -15,6 +15,7 @@ const (
 	info  LogType = 1
 	warn  LogType = 2
 	err   LogType = 3
+	debug LogType = 4
 )
 
 //LogMessage ... for message type bundling
@@ -45,7 +46,11 @@ func (l *Logger) printlogs(logt LogType, message string) {
 		}
 	case err:
 		{
-			log.Warn(message)
+			log.Error(message)
+		}
+	case debug:
+		{
+			log.Debug(message)
 		}
 	}
 }
@@ -81,6 +86,16 @@ func (l *Logger) Info(message string) {
 
 	if l.logchannel != nil {
 		l.logchannel <- LogMessage{logt: info, message: message}
+		l.waitOnChannelEmpty.Add(1)
+	}
+
+}
+
+//Debug ... logs debug
+func (l *Logger) Debug(message string) {
+
+	if l.logchannel != nil {
+		l.logchannel <- LogMessage{logt: debug, message: message}
 		l.waitOnChannelEmpty.Add(1)
 	}
 

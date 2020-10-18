@@ -105,9 +105,9 @@ type ServerManager struct {
 	clients      map[guuid.UUID]*Client
 	incomingPipe chan ServerMessage
 	outgoingPipe chan ServerMessage
-	onConnection func(client *Client)
-	logger       *logger.Logger
-	bufferSize   *int
+	// onConnection func(client *Client)
+	logger     *logger.Logger
+	bufferSize *int
 }
 
 //GetOutStream ... give a writable stream to sending messaged to clients
@@ -115,7 +115,7 @@ func (server *ServerManager) GetOutStream() chan<- ServerMessage {
 	return server.outgoingPipe
 }
 
-//GetInStream ... give a writable stream to sending messaged to clients
+//GetInStream ... give a readable stream for reading messages from clients
 func (server *ServerManager) GetInStream() <-chan ServerMessage {
 	return server.incomingPipe
 }
@@ -169,7 +169,7 @@ func (server *ServerManager) handleConnection(conn *websocket.Conn) {
 		for value := range client.outputStream {
 			err := conn.WriteMessage(websocket.TextMessage, value)
 			if err != nil {
-				logger.Error(fmt.Sprintf("could not write to host"))
+				logger.Error(fmt.Sprintf("could not write to host err :%s", err.Error()))
 				server.destroyClient(&client.id)
 				clientWait.Done()
 			}
